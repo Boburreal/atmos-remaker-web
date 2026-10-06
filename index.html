@@ -388,11 +388,42 @@
 
       // Bu yerda keyin backendga so'rov yuboriladi
       // Hozircha demo
-      setTimeout(() => {
-        status.textContent = 'Hozircha backend ulanmagan. Keyingi bosqichda ulaymiz.';
+     status.textContent = 'Audio ishlanmoqda... Biroz kuting...';
+    status.className = 'status';
+
+    const formData = new FormData();
+    formData.append("file", selectedFile); // Yoki yuklangan fayl o'zgaruvchisi
+    formData.append("speed", speedInput.value || 1.0);
+    formData.append("reverb", reverbInput.value || 0);
+    formData.append("bass", bassInput.value || 0);
+
+    try {
+        const response = await fetch("https://atmos-backent.onrender.com/process-audio", {
+            method: "POST",
+            body: formData
+        });
+
+        if (!response.ok) throw new Error("Audioga ishlov berishda xatolik yuz berdi");
+
+        const blob = await response.blob();
+        const downloadUrl = URL.createObjectURL(blob);
+
+        // Tayyor faylni avtomatik yuklab olish
+        const a = document.createElement("a");
+        a.href = downloadUrl;
+        a.download = "tayyor_" + (selectedFile ? selectedFile.name : "audio.mp3");
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        status.textContent = 'Muvaffaqiyatli ishlandi!';
+        status.className = 'status success';
+    } catch (error) {
+        status.textContent = 'Xatolik: ' + error.message;
         status.className = 'status error';
+    } finally {
         processBtn.disabled = false;
-      }, 1500);
+    }
     });
   </script>
 </body>
