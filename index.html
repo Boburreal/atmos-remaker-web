@@ -46,23 +46,45 @@
             letter-spacing: 1px;
             margin-bottom: 15px;
         }
-        .upload-area {
+        
+        /* Telegram Mini App uchun fayl tanlash tugmasi */
+        .file-upload-wrapper {
+            position: relative;
+            width: 100%;
+            text-align: center;
+        }
+        .file-upload-label {
+            display: block;
+            width: 100%;
+            padding: 25px 15px;
             border: 2px dashed rgba(0, 242, 254, 0.4);
             border-radius: 8px;
-            padding: 30px;
-            text-align: center;
+            background: rgba(0, 242, 254, 0.03);
             cursor: pointer;
+            box-sizing: border-box;
             transition: 0.3s;
         }
-        .upload-area:hover {
+        .file-upload-label:active {
+            background: rgba(0, 242, 254, 0.15);
             border-color: #00f2fe;
-            background: rgba(0, 242, 254, 0.05);
         }
+        /* Input faylni tugmaning ustiga shaffof holatda yoyib chiqamiz */
+        #fileInput {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
         .file-name {
             margin-top: 10px;
             color: #00f2fe;
             font-size: 14px;
             word-break: break-all;
+            font-weight: bold;
         }
         .btn-grid {
             display: grid;
@@ -135,12 +157,13 @@
 
     <div class="card">
         <div class="card-title">AUDIO YUKLASH</div>
-        <div class="upload-area" id="dropArea">
-            <div style="font-size: 30px;">🎵</div>
-            <div style="margin-top: 10px; font-size: 14px;">Audio faylni tanlang (MP3, WAV, OGG, AAC)</div>
-            <div class="file-name" id="fileName"></div>
-            <!-- Barcha audio formatlarni aniq ko'rsatish -->
-            <input type="file" id="fileInput" accept=".mp3,.wav,.ogg,.aac,.m4a,audio/mpeg,audio/wav,audio/ogg,audio/aac,audio/*" style="display: none;">
+        <div class="file-upload-wrapper">
+            <label class="file-upload-label" for="fileInput">
+                <div style="font-size: 32px;">🎵</div>
+                <div style="margin-top: 8px; font-size: 14px;">Audio faylni tanlash uchun bosing</div>
+                <div class="file-name" id="fileName"></div>
+            </label>
+            <input type="file" id="fileInput" accept="audio/*,.mp3,.wav,.ogg,.aac,.m4a">
         </div>
     </div>
 
@@ -178,7 +201,6 @@
 <script>
     const BACKEND_URL = "https://atmos-backent.onrender.com";
 
-    const dropArea = document.getElementById('dropArea');
     const fileInput = document.getElementById('fileInput');
     const fileName = document.getElementById('fileName');
     const processBtn = document.getElementById('processBtn');
@@ -194,12 +216,7 @@
 
     let selectedFile = null;
 
-    // Telegram va mobil brauzerlarda fayl tanlash oynasini ishonchli ochish
-    dropArea.addEventListener('click', (e) => {
-        e.preventDefault();
-        fileInput.click();
-    });
-
+    // Fayl tanlanganda hodisa
     fileInput.addEventListener('change', (e) => {
         if (e.target.files && e.target.files.length > 0) {
             selectedFile = e.target.files[0];
@@ -208,23 +225,12 @@
         }
     });
 
-    // Drag & Drop hodisalari
-    dropArea.addEventListener('dragover', (e) => e.preventDefault());
-    dropArea.addEventListener('drop', (e) => {
-        e.preventDefault();
-        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-            selectedFile = e.dataTransfer.files[0];
-            fileName.textContent = "Tanlandi: " + selectedFile.name;
-            statusMsg.textContent = "";
-        }
-    });
-
-    // Slider'lar qiymatlarini ko'rsatish
+    // Slider qiymatlarini yangilash
     speedRange.addEventListener('input', (e) => speedVal.textContent = e.target.value + 'x');
     reverbRange.addEventListener('input', (e) => reverbVal.textContent = e.target.value + '%');
     bassRange.addEventListener('input', (e) => bassVal.textContent = e.target.value + '%');
 
-    // Tayyor rejim tugmalari
+    // Rejim tugmalari
     document.querySelectorAll('.mode-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
@@ -241,7 +247,7 @@
         });
     });
 
-    // Backend serverga so'rov yuborish
+    // Backend ga yuborish
     processBtn.addEventListener('click', async () => {
         if (!selectedFile) {
             statusMsg.textContent = "Iltimos, avval audio faylni yuklang!";
