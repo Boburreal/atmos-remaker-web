@@ -217,9 +217,9 @@
     <div class="card">
         <div class="card-title">2. Tayyor Rejimlar</div>
         <div class="btn-grid">
-            <button class="mode-btn active" data-speed="1.0" data-reverb="50" data-bass="0" data-8d="false" data-eq="+2,-4,-4,0,0,+2,+5,+7,+8">Standart</button>
-            <button class="mode-btn" data-speed="0.65" data-reverb="45" data-bass="0" data-8d="false" data-eq="+2,-4,-4,0,0,+2,+5,+7,+8">Slowed + Reverb</button>
-            <button class="mode-btn" data-speed="1.0" data-reverb="40" data-bass="20" data-8d="false" data-eq="+4,+2,-2,0,0,+2,+5,+7,+8">Bass Boost</button>
+            <button class="mode-btn active" data-speed="1.0" data-reverb="0" data-bass="0" data-8d="false" data-eq="+2,-4,-4,0,0,+2,+5,+7,+8">Standart</button>
+            <button class="mode-btn" data-speed="0.90" data-reverb="45" data-bass="0" data-8d="false" data-eq="+2,-4,-4,0,0,+2,+5,+7,+8">Slowed + Reverb</button>
+            <button class="mode-btn" data-speed="1.0" data-reverb="0" data-bass="0" data-8d="false" data-eq="+4,+4,+2,0,0,+2,+5,+7,+8">Bass Boost</button>
             <button class="mode-btn" data-speed="1.0" data-reverb="45" data-bass="0" data-8d="true" data-eq="+2,-4,-4,0,0,+2,+5,+7,+8">8D Audio</button>
             <button class="mode-btn" data-speed="1.2" data-reverb="40" data-bass="0" data-8d="false" data-eq="+2,-3,-3,0,0,+2,+5,+7,+8">Pitch Up</button>
             <button class="mode-btn" data-speed="0.75" data-reverb="40" data-bass="0" data-8d="false" data-eq="+2,-4,-4,0,0,+2,+5,+7,+8">Pitch Down</button>
@@ -235,8 +235,8 @@
                 <input type="range" id="speedRange" min="0.5" max="1.5" step="0.05" value="1.0">
             </div>
             <div class="control-group">
-                <div class="control-label"><span>Reverb Effect</span><span id="reverbVal">50%</span></div>
-                <input type="range" id="reverbRange" min="0" max="100" step="5" value="50">
+                <div class="control-label"><span>Reverb Effect</span><span id="reverbVal">0%</span></div>
+                <input type="range" id="reverbRange" min="0" max="100" step="5" value="0">
             </div>
             <div class="control-group">
                 <div class="control-label"><span>Bass Increase</span><span id="bassVal">0%</span></div>
@@ -281,7 +281,6 @@
 <script>
     const BACKEND_URL = "https://atmos-backent.onrender.com"; // Render backend havolangiz
 
-    // Telegram WebApp obyektini boshlash
     const tg = window.Telegram ? window.Telegram.WebApp : null;
     if (tg) {
         tg.expand();
@@ -306,25 +305,21 @@
     let selectedFile = null;
     let currentEq = "+2,-4,-4,0,0,+2,+5,+7,+8";
 
-    // Fayl tanlanganda
     fileInput.addEventListener('change', (e) => {
         if (e.target.files && e.target.files.length > 0) {
             selectedFile = e.target.files[0];
             fileName.textContent = "Tanlandi: " + selectedFile.name;
             
-            // Asl nomidan tayyor nom shakllantirish (.mp3 siz)
             let baseName = selectedFile.name.replace(/\.[^/.]+$/, "");
             trackNameInput.value = baseName;
             statusMsg.textContent = "";
         }
     });
 
-    // Slider-larni ekranga chiqarish
     speedRange.addEventListener('input', (e) => speedVal.textContent = e.target.value + 'x');
     reverbRange.addEventListener('input', (e) => reverbVal.textContent = e.target.value + '%');
     bassRange.addEventListener('input', (e) => bassVal.textContent = e.target.value + '%');
 
-    // Tayyor Rejimlar tugmalari mantiqi
     document.querySelectorAll('.mode-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
@@ -346,7 +341,6 @@
         });
     });
 
-    // Process & Download
     processBtn.addEventListener('click', async () => {
         if (!selectedFile) {
             statusMsg.textContent = "Iltimos, avval audio faylni yuklang!";
@@ -358,7 +352,6 @@
         statusMsg.textContent = "Audio va muqova ishlanmoqda (1-2 daqiqa ketishi mumkin)...";
         statusMsg.className = "status-msg";
 
-        // Yangi nom va (BStrack) qo'shimchasi
         let customName = trackNameInput.value.trim();
         if (!customName) {
             customName = selectedFile.name.replace(/\.[^/.]+$/, "");
@@ -387,7 +380,6 @@
             const blob = await response.blob();
             const downloadUrl = URL.createObjectURL(blob);
 
-            // Brauzer yoki Telegram orqali yuklab olish
             const a = document.createElement("a");
             a.href = downloadUrl;
             a.download = `${finalTitle}.mp3`;
@@ -398,9 +390,8 @@
             statusMsg.textContent = "Muvaffaqiyatli ishlandi! Faylingiz yuklanmoqda...";
             statusMsg.className = "status-msg success";
 
-            // Telegram Mini App ichida foydalanuvchiga saqlash bo'yicha yo'riqnoma
             if (tg) {
-                tg.showAlert(`Musiqangiz tayyor!\n\nNom: ${finalTitle}.mp3\n\nFayl qurilmangizga yuklandi. Telegram chatlariga yuborishingiz va "Saved Messages" (Saqlangan xabarlar)ga saqlashingiz mumkin.`);
+                tg.showAlert(`Musiqangiz tayyor!\n\nNom: ${finalTitle}.mp3\n\nFayl qurilmangizga yuklandi.`);
             }
         } catch (error) {
             statusMsg.textContent = "Xatolik: " + error.message;
