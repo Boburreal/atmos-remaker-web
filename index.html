@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATMOS REMAKER</title>
+    <title>ATMOS REMAKER - BStrack Studio</title>
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
             background-color: #0b0f19;
@@ -14,40 +16,43 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
+            padding: 10px;
         }
         .container {
             width: 100%;
             max-width: 480px;
-            padding: 20px;
+            padding: 15px;
             box-sizing: border-box;
         }
         h1 {
             text-align: center;
             color: #00f2fe;
-            margin-bottom: 5px;
+            margin-bottom: 2px;
             letter-spacing: 2px;
+            font-size: 24px;
         }
         .subtitle {
             text-align: center;
             color: #8a99ad;
-            font-size: 14px;
-            margin-bottom: 25px;
+            font-size: 13px;
+            margin-bottom: 20px;
         }
         .card {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(0, 242, 254, 0.2);
             border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .card-title {
-            font-size: 12px;
-            color: #00f2fe;
-            letter-spacing: 1px;
+            padding: 15px;
             margin-bottom: 15px;
         }
+        .card-title {
+            font-size: 11px;
+            color: #00f2fe;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
         
-        /* Telegram Mini App uchun fayl tanlash tugmasi */
         .file-upload-wrapper {
             position: relative;
             width: 100%;
@@ -56,7 +61,7 @@
         .file-upload-label {
             display: block;
             width: 100%;
-            padding: 25px 15px;
+            padding: 20px 10px;
             border: 2px dashed rgba(0, 242, 254, 0.4);
             border-radius: 8px;
             background: rgba(0, 242, 254, 0.03);
@@ -68,7 +73,6 @@
             background: rgba(0, 242, 254, 0.15);
             border-color: #00f2fe;
         }
-        /* Input faylni tugmaning ustiga shaffof holatda yoyib chiqamiz */
         #fileInput {
             position: absolute;
             top: 0;
@@ -78,63 +82,103 @@
             opacity: 0;
             cursor: pointer;
         }
-
         .file-name {
-            margin-top: 10px;
+            margin-top: 8px;
             color: #00f2fe;
-            font-size: 14px;
+            font-size: 13px;
             word-break: break-all;
             font-weight: bold;
         }
         .btn-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 8px;
         }
         .mode-btn {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: #fff;
-            padding: 12px;
+            padding: 10px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 12px;
             transition: 0.2s;
         }
         .mode-btn.active, .mode-btn:hover {
             border-color: #00f2fe;
-            background: rgba(0, 242, 254, 0.1);
+            background: rgba(0, 242, 254, 0.15);
             color: #00f2fe;
+            font-weight: bold;
         }
         .controls {
             margin-top: 15px;
         }
         .control-group {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         .control-label {
             display: flex;
             justify-content: space-between;
             font-size: 12px;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
             color: #a0aec0;
         }
         input[type="range"] {
             width: 100%;
             accent-color: #00f2fe;
         }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 13px;
+            box-sizing: border-box;
+            outline: none;
+        }
+        input[type="text"]:focus {
+            border-color: #00f2fe;
+        }
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #333; transition: .4s; border-radius: 22px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px;
+            background-color: white; transition: .4s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #00f2fe; }
+        input:checked + .slider:before { transform: translateX(22px); }
+
         .action-btn {
             width: 100%;
-            padding: 15px;
+            padding: 14px;
             border: none;
             border-radius: 8px;
             background: linear-gradient(90deg, #00c6ff 0%, #0072ff 50%, #9200d6 100%);
             color: #fff;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 15px;
             cursor: pointer;
             letter-spacing: 1px;
             transition: 0.3s;
+            margin-top: 5px;
         }
         .action-btn:disabled {
             opacity: 0.5;
@@ -142,8 +186,9 @@
         }
         .status-msg {
             text-align: center;
-            margin-top: 15px;
-            font-size: 13px;
+            margin-top: 12px;
+            font-size: 12px;
+            word-break: break-all;
         }
         .status-msg.error { color: #ff4d4d; }
         .status-msg.success { color: #00ff88; }
@@ -153,84 +198,133 @@
 
 <div class="container">
     <h1>ATMOS REMAKER</h1>
-    <div class="subtitle">Neon Audio Laboratory</div>
+    <div class="subtitle">BStrack Studio Laboratory</div>
 
+    <!-- 1. Audio Yuklash -->
     <div class="card">
-        <div class="card-title">AUDIO YUKLASH</div>
+        <div class="card-title">1. Audio Fayl Yuklash</div>
         <div class="file-upload-wrapper">
             <label class="file-upload-label" for="fileInput">
-                <div style="font-size: 32px;">🎵</div>
-                <div style="margin-top: 8px; font-size: 14px;">Audio faylni tanlash uchun bosing</div>
+                <div style="font-size: 28px;">🎵</div>
+                <div style="margin-top: 5px; font-size: 13px;">Audio faylni tanlash uchun bosing</div>
                 <div class="file-name" id="fileName"></div>
             </label>
             <input type="file" id="fileInput" accept="audio/*,.mp3,.wav,.ogg,.aac,.m4a">
         </div>
     </div>
 
+    <!-- 2. Tayyor Rejimlar -->
     <div class="card">
-        <div class="card-title">TAYYOR REJIMLAR</div>
+        <div class="card-title">2. Tayyor Rejimlar</div>
         <div class="btn-grid">
-            <button class="mode-btn active" data-speed="1.0" data-reverb="0" data-bass="0">Standart</button>
-            <button class="mode-btn" data-speed="0.85" data-reverb="40" data-bass="10">Slowed + Reverb</button>
-            <button class="mode-btn" data-speed="1.0" data-reverb="0" data-bass="60">Bass Boost</button>
-            <button class="mode-btn" data-speed="1.1" data-reverb="20" data-bass="20">8D Audio</button>
-            <button class="mode-btn" data-speed="1.15" data-reverb="0" data-bass="0">Pitch Up</button>
-            <button class="mode-btn" data-speed="0.88" data-reverb="0" data-bass="0">Pitch Down</button>
+            <button class="mode-btn active" data-speed="1.0" data-reverb="50" data-bass="0" data-8d="false" data-eq="+2,-4,-4,0,0,+2,+5,+7,+8">Standart</button>
+            <button class="mode-btn" data-speed="0.65" data-reverb="45" data-bass="0" data-8d="false" data-eq="+2,-4,-4,0,0,+2,+5,+7,+8">Slowed + Reverb</button>
+            <button class="mode-btn" data-speed="1.0" data-reverb="40" data-bass="20" data-8d="false" data-eq="+4,+2,-2,0,0,+2,+5,+7,+8">Bass Boost</button>
+            <button class="mode-btn" data-speed="1.0" data-reverb="45" data-bass="0" data-8d="true" data-eq="+2,-4,-4,0,0,+2,+5,+7,+8">8D Audio</button>
+            <button class="mode-btn" data-speed="1.2" data-reverb="40" data-bass="0" data-8d="false" data-eq="+2,-3,-3,0,0,+2,+5,+7,+8">Pitch Up</button>
+            <button class="mode-btn" data-speed="0.75" data-reverb="40" data-bass="0" data-8d="false" data-eq="+2,-4,-4,0,0,+2,+5,+7,+8">Pitch Down</button>
         </div>
+    </div>
 
+    <!-- 3. Moslash va Redaktirlash -->
+    <div class="card">
+        <div class="card-title">3. Qo'shimcha Sozlamalar</div>
         <div class="controls">
             <div class="control-group">
                 <div class="control-label"><span>Tezlik (Speed)</span><span id="speedVal">1.0x</span></div>
                 <input type="range" id="speedRange" min="0.5" max="1.5" step="0.05" value="1.0">
             </div>
             <div class="control-group">
-                <div class="control-label"><span>Reverb</span><span id="reverbVal">0%</span></div>
-                <input type="range" id="reverbRange" min="0" max="100" step="5" value="0">
+                <div class="control-label"><span>Reverb Effect</span><span id="reverbVal">50%</span></div>
+                <input type="range" id="reverbRange" min="0" max="100" step="5" value="50">
             </div>
             <div class="control-group">
-                <div class="control-label"><span>Bass</span><span id="bassVal">0%</span></div>
+                <div class="control-label"><span>Bass Increase</span><span id="bassVal">0%</span></div>
                 <input type="range" id="bassRange" min="0" max="100" step="5" value="0">
+            </div>
+
+            <!-- Vocal Remover / Ovozni o'chirish -->
+            <div class="toggle-group">
+                <span>Vocal Remover (Ovozni o'chirish)</span>
+                <label class="switch">
+                    <input type="checkbox" id="vocalRemoverToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <!-- 8D Audio Effekti -->
+            <div class="toggle-group">
+                <span>8D Audio Pan Effect</span>
+                <label class="switch">
+                    <input type="checkbox" id="eightDToggle">
+                    <span class="slider"></span>
+                </label>
             </div>
         </div>
     </div>
 
-    <button class="action-btn" id="processBtn">ISHLOV BERISH</button>
+    <!-- 4. Fayl Nomi va Cover -->
+    <div class="card">
+        <div class="card-title">4. Fayl Nomini O'zgartirish</div>
+        <div class="control-group">
+            <input type="text" id="trackNameInput" placeholder="Yangi nom kiriting (ixtiyoriy)">
+            <div style="font-size: 11px; color: #00f2fe; margin-top: 5px;">
+                * Fayl oxiriga avtomatik <b>(BStrack)</b> va logotip muqova (cover) qilib joylanadi.
+            </div>
+        </div>
+    </div>
+
+    <button class="action-btn" id="processBtn">ISHLOV BERISH VA YUKLASH</button>
     <div class="status-msg" id="statusMsg"></div>
 </div>
 
 <script>
-    const BACKEND_URL = "https://atmos-backent.onrender.com";
+    const BACKEND_URL = "https://atmostrack-j384.onrender.com"; // Render backend havolangiz
+
+    // Telegram WebApp obyektini boshlash
+    const tg = window.Telegram ? window.Telegram.WebApp : null;
+    if (tg) {
+        tg.expand();
+    }
 
     const fileInput = document.getElementById('fileInput');
     const fileName = document.getElementById('fileName');
     const processBtn = document.getElementById('processBtn');
     const statusMsg = document.getElementById('statusMsg');
+    const trackNameInput = document.getElementById('trackNameInput');
 
     const speedRange = document.getElementById('speedRange');
     const reverbRange = document.getElementById('reverbRange');
     const bassRange = document.getElementById('bassRange');
+    const vocalRemoverToggle = document.getElementById('vocalRemoverToggle');
+    const eightDToggle = document.getElementById('eightDToggle');
 
     const speedVal = document.getElementById('speedVal');
     const reverbVal = document.getElementById('reverbVal');
     const bassVal = document.getElementById('bassVal');
 
     let selectedFile = null;
+    let currentEq = "+2,-4,-4,0,0,+2,+5,+7,+8";
 
-    // Fayl tanlanganda hodisa
+    // Fayl tanlanganda
     fileInput.addEventListener('change', (e) => {
         if (e.target.files && e.target.files.length > 0) {
             selectedFile = e.target.files[0];
             fileName.textContent = "Tanlandi: " + selectedFile.name;
+            
+            // Asl nomidan tayyor nom shakllantirish (.mp3 siz)
+            let baseName = selectedFile.name.replace(/\.[^/.]+$/, "");
+            trackNameInput.value = baseName;
             statusMsg.textContent = "";
         }
     });
 
-    // Slider qiymatlarini yangilash
+    // Slider-larni ekranga chiqarish
     speedRange.addEventListener('input', (e) => speedVal.textContent = e.target.value + 'x');
     reverbRange.addEventListener('input', (e) => reverbVal.textContent = e.target.value + '%');
     bassRange.addEventListener('input', (e) => bassVal.textContent = e.target.value + '%');
 
-    // Rejim tugmalari
+    // Tayyor Rejimlar tugmalari mantiqi
     document.querySelectorAll('.mode-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
@@ -239,15 +333,20 @@
             if (btn.dataset.speed) {
                 speedRange.value = btn.dataset.speed;
                 speedVal.textContent = btn.dataset.speed + 'x';
+                
                 reverbRange.value = btn.dataset.reverb;
                 reverbVal.textContent = btn.dataset.reverb + '%';
+                
                 bassRange.value = btn.dataset.bass;
                 bassVal.textContent = btn.dataset.bass + '%';
+
+                eightDToggle.checked = (btn.dataset['8d'] === "true");
+                currentEq = btn.dataset.eq || "+2,-4,-4,0,0,+2,+5,+7,+8";
             }
         });
     });
 
-    // Backend ga yuborish
+    // Process & Download
     processBtn.addEventListener('click', async () => {
         if (!selectedFile) {
             statusMsg.textContent = "Iltimos, avval audio faylni yuklang!";
@@ -256,14 +355,26 @@
         }
 
         processBtn.disabled = true;
-        statusMsg.textContent = "Audio ishlanmoqda (30-40 soniya ketishi mumkin)...";
+        statusMsg.textContent = "Audio va muqova ishlanmoqda (1-2 daqiqa ketishi mumkin)...";
         statusMsg.className = "status-msg";
+
+        // Yangi nom va (BStrack) qo'shimchasi
+        let customName = trackNameInput.value.trim();
+        if (!customName) {
+            customName = selectedFile.name.replace(/\.[^/.]+$/, "");
+        }
+        const finalTitle = customName + " (BStrack)";
 
         const formData = new FormData();
         formData.append("file", selectedFile);
         formData.append("speed", speedRange.value);
         formData.append("reverb", reverbRange.value);
         formData.append("bass", bassRange.value);
+        formData.append("is_8d", eightDToggle.checked);
+        formData.append("vocal_remover", vocalRemoverToggle.checked);
+        formData.append("eq", currentEq);
+        formData.append("bitrate", "320k");
+        formData.append("custom_title", finalTitle);
 
         try {
             const response = await fetch(`${BACKEND_URL}/process-audio`, {
@@ -271,20 +382,26 @@
                 body: formData
             });
 
-            if (!response.ok) throw new Error("Audioga ishlov berishda xatolik yuz berdi");
+            if (!response.ok) throw new Error("Audioga ishlov berishda backend xatoligi yuz berdi!");
 
             const blob = await response.blob();
             const downloadUrl = URL.createObjectURL(blob);
 
+            // Brauzer yoki Telegram orqali yuklab olish
             const a = document.createElement("a");
             a.href = downloadUrl;
-            a.download = "tayyor_" + selectedFile.name;
+            a.download = `${finalTitle}.mp3`;
             document.body.appendChild(a);
             a.click();
             a.remove();
 
-            statusMsg.textContent = "Muvaffaqiyatli ishlandi va yuklab olindi!";
+            statusMsg.textContent = "Muvaffaqiyatli ishlandi! Faylingiz yuklanmoqda...";
             statusMsg.className = "status-msg success";
+
+            // Telegram Mini App ichida foydalanuvchiga saqlash bo'yicha yo'riqnoma
+            if (tg) {
+                tg.showAlert(`Musiqangiz tayyor!\n\nNom: ${finalTitle}.mp3\n\nFayl qurilmangizga yuklandi. Telegram chatlariga yuborishingiz va "Saved Messages" (Saqlangan xabarlar)ga saqlashingiz mumkin.`);
+            }
         } catch (error) {
             statusMsg.textContent = "Xatolik: " + error.message;
             statusMsg.className = "status-msg error";
