@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Atmos Remaker</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+    :root {
+      --bg: #0a0a0f;
+      --card: rgba(20, 20, 35, 0.7);
+      --neon-cyan: #00f0ff;
+      --neon-purple: #b026ff;
+      --neon-pink: #ff2a6d;
+      --text: #e0e0ff;
+      --muted: #8a8aaa;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 20% 20%, rgba(0, 240, 255, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(176, 38, 255, 0.08) 0%, transparent 40%);
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 20px 16px 40px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 28px;
+      padding-top: 10px;
+    }
+
+    header h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+    }
+
+    header p {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(0, 240, 255, 0.15);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 16px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.05);
+    }
+
+    .card-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.85rem;
+      color: var(--neon-cyan);
+      margin-bottom: 14px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* Upload Zone */
+    .upload-zone {
+      border: 2px dashed rgba(0, 240, 255, 0.3);
+      border-radius: 12px;
+      padding: 30px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .upload-zone:hover, .upload-zone.dragover {
+      border-color: var(--neon-cyan);
+      background: rgba(0, 240, 255, 0.05);
+    }
+
+    .upload-zone input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .upload-icon {
+      font-size: 2.2rem;
+      margin-bottom: 8px;
+    }
+
+    .file-name {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: var(--neon-cyan);
+      word-break: break-all;
+    }
+
+    /* Presets */
+    .presets {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .preset-btn {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      color: var(--text);
+      padding: 12px 8px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.25s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .preset-btn:hover, .preset-btn.active {
+      border-color: var(--neon-cyan);
+      background: rgba(0, 240, 255, 0.12);
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.2);
+      color: var(--neon-cyan);
+    }
+
+    /* Sliders */
+    .slider-group {
+      margin-bottom: 16px;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 0.85rem;
+    }
+
+    .slider-header span:last-child {
+      color: var(--neon-cyan);
+      font-weight: 600;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--neon-cyan);
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--neon-cyan);
+    }
+
+    /* Main Button */
+    .process-btn {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+      color: #000;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 8px;
+      text-transform: uppercase;
+    }
+
+    .process-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.4);
+    }
+
+    .process-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Status */
+    .status {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      min-height: 24px;
+    }
+
+    .status.loading {
+      color: var(--neon-cyan);
+    }
+
+    .status.success {
+      color: #00ff9d;
+    }
+
+    .status.error {
+      color: var(--neon-pink);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>ATMOS REMAKER</h1>
+      <p>Neon Audio Laboratory</p>
+    </header>
+
+    <!-- Upload -->
+    <div class="card">
+      <div class="card-title">Audio Yuklash</div>
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" id="audioInput" accept="audio/*,.mp3,.wav,.ogg,.m4a" />
+        <div class="upload-icon">🎵</div>
+        <div>Audio faylni tanlang yoki tashlang</div>
+        <div class="file-name" id="fileName"></div>
+      </div>
+    </div>
+
+    <!-- Presets -->
+    <div class="card">
+      <div class="card-title">Tayyor Rejimlar</div>
+      <div class="presets" id="presets">
+        <button class="preset-btn active" data-preset="standart">Standart</button>
+        <button class="preset-btn" data-preset="slowed_reverb">Slowed + Reverb</button>
+        <button class="preset-btn" data-preset="bass_boost">Bass Boost</button>
+        <button class="preset-btn" data-preset="eight_d">8D Audio</button>
+        <button class="preset-btn" data-preset="pitch_up">Pitch Up</button>
+        <button class="preset-btn" data-preset="pitch_down">Pitch Down</button>
+        <button class="preset-btn" data-preset="echo">Echo / Delay</button>
+        <button class="preset-btn" data-preset="custom">Sozlamalar</button>
+      </div>
+    </div>
+
+    <!-- Custom Settings -->
+    <div class="card" id="customSettings" style="display: none;">
+      <div class="card-title">Sozlamalar</div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <span>Speed</span>
+          <span id="speedVal">1.00x</span>
+        </div>
+        <input type="range" id="speed" min="0.5" max="1.5" step="0.05" value="1.0" />
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <span>Reverb</span>
+          <span id="reverbVal">50%</span>
+        </div>
+        <input type="range" id="reverb" min="0" max="100" step="5" value="50" />
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <span>Bass</span>
+          <span id="bassVal">0%</span>
+        </div>
+        <input type="range" id="bass" min="0" max="100" step="5" value="0" />
+      </div>
+    </div>
+
+    <!-- Process Button -->
+    <button class="process-btn" id="processBtn" disabled>Ishlov Berish</button>
+
+    <div class="status" id="status"></div>
+  </div>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+    tg.setHeaderColor('#0a0a0f');
+    tg.setBackgroundColor('#0a0a0f');
+
+    // Elements
+    const audioInput = document.getElementById('audioInput');
+    const uploadZone = document.getElementById('uploadZone');
+    const fileName = document.getElementById('fileName');
+    const processBtn = document.getElementById('processBtn');
+    const status = document.getElementById('status');
+    const customSettings = document.getElementById('customSettings');
+    const presets = document.querySelectorAll('.preset-btn');
+
+    let selectedPreset = 'standart';
+    let audioFile = null;
+
+    // Preset buttons
+    presets.forEach(btn => {
+      btn.addEventListener('click', () => {
+        presets.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedPreset = btn.dataset.preset;
+
+        if (selectedPreset === 'custom') {
+          customSettings.style.display = 'block';
+        } else {
+          customSettings.style.display = 'none';
+        }
+      });
+    });
+
+    // Sliders
+    const speedSlider = document.getElementById('speed');
+    const reverbSlider = document.getElementById('reverb');
+    const bassSlider = document.getElementById('bass');
+
+    speedSlider.addEventListener('input', () => {
+      document.getElementById('speedVal').textContent = parseFloat(speedSlider.value).toFixed(2) + 'x';
+    });
+    reverbSlider.addEventListener('input', () => {
+      document.getElementById('reverbVal').textContent = reverbSlider.value + '%';
+    });
+    bassSlider.addEventListener('input', () => {
+      document.getElementById('bassVal').textContent = bassSlider.value + '%';
+    });
+
+    // Upload
+    audioInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        audioFile = file;
+        fileName.textContent = file.name;
+        processBtn.disabled = false;
+      }
+    });
+
+    // Drag & drop
+    uploadZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadZone.classList.add('dragover');
+    });
+    uploadZone.addEventListener('dragleave', () => {
+      uploadZone.classList.remove('dragover');
+    });
+    uploadZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadZone.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('audio/')) {
+        audioFile = file;
+        fileName.textContent = file.name;
+        processBtn.disabled = false;
+        audioInput.files = e.dataTransfer.files;
+      }
+    });
+
+    // Process button (hozircha faqat UI)
+    processBtn.addEventListener('click', () => {
+      if (!audioFile) return;
+
+      status.textContent = 'Ishlov berilmoqda...';
+      status.className = 'status loading';
+      processBtn.disabled = true;
+
+      // Bu yerda keyin backendga so'rov yuboriladi
+      // Hozircha demo
+      setTimeout(() => {
+        status.textContent = 'Hozircha backend ulanmagan. Keyingi bosqichda ulaymiz.';
+        status.className = 'status error';
+        processBtn.disabled = false;
+      }, 1500);
+    });
+  </script>
+</body>
+</html>
