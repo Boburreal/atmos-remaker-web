@@ -137,9 +137,10 @@
         <div class="card-title">AUDIO YUKLASH</div>
         <div class="upload-area" id="dropArea">
             <div style="font-size: 30px;">🎵</div>
-            <div style="margin-top: 10px; font-size: 14px;">Audio faylni tanlang yoki tashlang</div>
+            <div style="margin-top: 10px; font-size: 14px;">Audio faylni tanlang (MP3, WAV, OGG, AAC)</div>
             <div class="file-name" id="fileName"></div>
-            <input type="file" id="fileInput" accept="audio/*" style="display: none;">
+            <!-- Barcha audio formatlarni aniq ko'rsatish -->
+            <input type="file" id="fileInput" accept=".mp3,.wav,.ogg,.aac,.m4a,audio/mpeg,audio/wav,audio/ogg,audio/aac,audio/*" style="display: none;">
         </div>
     </div>
 
@@ -193,32 +194,37 @@
 
     let selectedFile = null;
 
-    // Выбор файла
-    dropArea.addEventListener('click', () => fileInput.click());
+    // Telegram va mobil brauzerlarda fayl tanlash oynasini ishonchli ochish
+    dropArea.addEventListener('click', (e) => {
+        e.preventDefault();
+        fileInput.click();
+    });
 
     fileInput.addEventListener('change', (e) => {
-        if (e.target.files.length > 0) {
+        if (e.target.files && e.target.files.length > 0) {
             selectedFile = e.target.files[0];
-            fileName.textContent = selectedFile.name;
+            fileName.textContent = "Tanlandi: " + selectedFile.name;
+            statusMsg.textContent = "";
         }
     });
 
-    // Перетаскивание файла (Drag & Drop)
+    // Drag & Drop hodisalari
     dropArea.addEventListener('dragover', (e) => e.preventDefault());
     dropArea.addEventListener('drop', (e) => {
         e.preventDefault();
-        if (e.dataTransfer.files.length > 0) {
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
             selectedFile = e.dataTransfer.files[0];
-            fileName.textContent = selectedFile.name;
+            fileName.textContent = "Tanlandi: " + selectedFile.name;
+            statusMsg.textContent = "";
         }
     });
 
-    // Ползунки
+    // Slider'lar qiymatlarini ko'rsatish
     speedRange.addEventListener('input', (e) => speedVal.textContent = e.target.value + 'x');
     reverbRange.addEventListener('input', (e) => reverbVal.textContent = e.target.value + '%');
     bassRange.addEventListener('input', (e) => bassVal.textContent = e.target.value + '%');
 
-    // Кнопки режимов
+    // Tayyor rejim tugmalari
     document.querySelectorAll('.mode-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
@@ -235,7 +241,7 @@
         });
     });
 
-    // Отправка на бэкенд
+    // Backend serverga so'rov yuborish
     processBtn.addEventListener('click', async () => {
         if (!selectedFile) {
             statusMsg.textContent = "Iltimos, avval audio faylni yuklang!";
@@ -244,7 +250,7 @@
         }
 
         processBtn.disabled = true;
-        statusMsg.textContent = "Audio ishlanmoqda (Render uyg'onishi uchun 30-40 soniya ketishi mumkin)...";
+        statusMsg.textContent = "Audio ishlanmoqda (30-40 soniya ketishi mumkin)...";
         statusMsg.className = "status-msg";
 
         const formData = new FormData();
